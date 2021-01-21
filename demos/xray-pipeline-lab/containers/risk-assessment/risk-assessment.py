@@ -9,7 +9,9 @@ from io import BytesIO
 import boto3
 import numpy as np
 import tensorflow as tf
+
 from cloudevents.http import from_http
+from kafka import KafkaProducer
 from flask import Flask, request
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
@@ -36,6 +38,12 @@ s3client = boto3.client(
 
 # Bucket base name
 bucket_base_name = os.environ["bucket-base-name"]
+
+# kafka producer
+
+kafka_server = os.environ["kafka_server"]
+phenomena_topic = os.environ["kafka_phenomena_topic"]
+producer = KafkaProducer(bootstrap_servers=kafka_server)
 
 # Helper database
 db_user = os.environ["database-user"]
@@ -103,6 +111,10 @@ def process_event(data):
                 )
             update_images_processed(computed_image_key, model_version, result["label"])
             logging.info("Image processed")
+
+            if result["label"] == "phenomena":
+                producer.send(kafka_phenomena_topic, f"Phenomena detected in {img_key}")
+                logging.info(f"Add {img_key} to phenomena topic")
 
             # If "unsure" of prediction, anonymize image
             if result["pred"] < 0.80 and result["pred"] > 0.60:
