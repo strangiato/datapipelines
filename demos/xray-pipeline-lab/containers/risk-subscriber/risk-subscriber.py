@@ -3,8 +3,6 @@ import os
 import sys
 
 from kafka import KafkaConsumer
-from flask import Flask, request
-from flask_cors import CORS
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
