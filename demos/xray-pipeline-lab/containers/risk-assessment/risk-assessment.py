@@ -103,14 +103,24 @@ def process_event(data):
             draw.text((0, 0), result["label"], (255), font=font)
 
             # Save image with "-processed" appended to name
-            computed_image_key = os.path.splitext(img_key)[0] + "-processed." + os.path.splitext(img_key)[-1].strip(".")
+            computed_image_key = (
+                os.path.splitext(img_key)[0]
+                + "-processed."
+                + os.path.splitext(img_key)[-1].strip(".")
+            )
             buffer = BytesIO()
             img.save(buffer, get_safe_ext(computed_image_key))
             buffer.seek(0)
-            sent_data = s3client.put_object(Bucket=bucket_base_name + "-processed", Key=computed_image_key, Body=buffer)
+            sent_data = s3client.put_object(
+                Bucket=bucket_base_name + "-processed",
+                Key=computed_image_key,
+                Body=buffer,
+            )
             if sent_data["ResponseMetadata"]["HTTPStatusCode"] != 200:
                 raise logging.error(
-                    "Failed to upload image {} to bucket {}".format(computed_image_key, bucket_base_name + "-processed")
+                    "Failed to upload image {} to bucket {}".format(
+                        computed_image_key, bucket_base_name + "-processed"
+                    )
                 )
             update_images_processed(computed_image_key, model_version, result["label"])
             logging.info("Image processed")
@@ -126,13 +136,17 @@ def process_event(data):
                 if len(split_key) == 1:
                     anonymized_image_key = anonymized_data["anon_img_name"]
                 else:
-                    anonymized_image_key = split_key[0] + "/" + anonymized_data["anon_img_name"]
+                    anonymized_image_key = (
+                        split_key[0] + "/" + anonymized_data["anon_img_name"]
+                    )
                 anonymized_img = anonymized_data["img_anon"]
                 buffer = BytesIO()
                 anonymized_img.save(buffer, get_safe_ext(anonymized_image_key))
                 buffer.seek(0)
                 sent_data = s3client.put_object(
-                    Bucket=bucket_base_name + "-anonymized", Key=anonymized_image_key, Body=buffer
+                    Bucket=bucket_base_name + "-anonymized",
+                    Key=anonymized_image_key,
+                    Body=buffer,
                 )
                 if sent_data["ResponseMetadata"]["HTTPStatusCode"] != 200:
                     raise logging.error(
@@ -154,7 +168,11 @@ def extract_data(data):
     bucket_eventName = record["eventName"]
     bucket_name = record["s3"]["bucket"]["name"]
     bucket_object = record["s3"]["object"]["key"]
-    data_out = {"bucket_eventName": bucket_eventName, "bucket_name": bucket_name, "bucket_object": bucket_object}
+    data_out = {
+        "bucket_eventName": bucket_eventName,
+        "bucket_name": bucket_name,
+        "bucket_object": bucket_object,
+    }
     return data_out
 
 
@@ -165,7 +183,9 @@ def load_image(bucket_name, img_path):
     obj = s3client.get_object(Bucket=bucket_name, Key=img_path)
     img_stream = io.BytesIO(obj["Body"].read())
     img = tf.keras.preprocessing.image.load_img(img_stream, target_size=(150, 150))
-    img_tensor = tf.keras.preprocessing.image.img_to_array(img)  # (height, width, channels)
+    img_tensor = tf.keras.preprocessing.image.img_to_array(
+        img
+    )  # (height, width, channels)
     img_tensor = np.expand_dims(img_tensor, axis=0)
     # (1, height, width, channels),
     # add a dimension because the model expects this shape:
@@ -213,7 +233,9 @@ def anonymize(img, img_name):
     prefix = img_name.split("_")[0]
     patient_id = img_name.split("_")[2]
     suffix = img_name.split("_")[-1]
-    new_img_name = prefix + "_" + "XXXXXXXX_" + get_study_id(patient_id) + "_XXXX-XX-XX_" + suffix
+    new_img_name = (
+        prefix + "_" + "XXXXXXXX_" + get_study_id(patient_id) + "_XXXX-XX-XX_" + suffix
+    )
 
     anon_data = {"img_anon": img, "anon_img_name": new_img_name}
 
@@ -241,7 +263,9 @@ def get_safe_ext(key):
 
 def update_images_processed(image_name, model_version, label):
     try:
-        cnx = mysql.connector.connect(user=db_user, password=db_password, host=db_host, database=db_db)
+        cnx = mysql.connector.connect(
+            user=db_user, password=db_password, host=db_host, database=db_db
+        )
         cursor = cnx.cursor()
         query = (
             'INSERT INTO images_processed(time,name,model,label) SELECT CURRENT_TIMESTAMP(), "'
@@ -264,9 +288,15 @@ def update_images_processed(image_name, model_version, label):
 
 def update_images_anonymized(image_name):
     try:
-        cnx = mysql.connector.connect(user=db_user, password=db_password, host=db_host, database=db_db)
+        cnx = mysql.connector.connect(
+            user=db_user, password=db_password, host=db_host, database=db_db
+        )
         cursor = cnx.cursor()
-        query = 'INSERT INTO images_anonymized(time,name) SELECT CURRENT_TIMESTAMP(), "' + image_name + '";'
+        query = (
+            'INSERT INTO images_anonymized(time,name) SELECT CURRENT_TIMESTAMP(), "'
+            + image_name
+            + '";'
+        )
         cursor.execute(query)
         cnx.commit()
         cursor.close()
