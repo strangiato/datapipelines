@@ -1,7 +1,7 @@
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
-  name: risk-assessment
+  name: risk-subscriber
   namespace: xraylab-0001
 spec:
   output:
