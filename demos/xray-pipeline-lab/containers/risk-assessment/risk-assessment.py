@@ -42,7 +42,7 @@ bucket_base_name = os.environ["bucket-base-name"]
 # kafka producer
 
 kafka_server = os.environ["kafka_server"]
-phenomena_topic = os.environ["kafka_phenomena_topic"]
+pneumonia_topic = os.environ["kafka_pneumonia_topic"]
 producer = KafkaProducer(bootstrap_servers=kafka_server)
 
 # Helper database
@@ -112,9 +112,9 @@ def process_event(data):
             update_images_processed(computed_image_key, model_version, result["label"])
             logging.info("Image processed")
 
-            if result["label"] == "phenomena":
-                producer.send(kafka_phenomena_topic, f"Phenomena detected in {img_key}")
-                logging.info(f"Add {img_key} to phenomena topic")
+            if result["label"] == "pneumonia":
+                producer.send(kafka_pneumonia_topic, f"Pneumonia detected in {img_key}")
+                logging.info(f"Add {img_key} to pneumonia topic")
 
             # If "unsure" of prediction, anonymize image
             if result["pred"] < 0.80 and result["pred"] > 0.60:
