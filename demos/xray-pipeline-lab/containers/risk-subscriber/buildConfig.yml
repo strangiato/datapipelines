@@ -1,0 +1,28 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: risk-assessment
+  namespace: xraylab-0001
+spec:
+  output:
+    to:
+      kind: "ImageStreamTag"
+      name: "risk-subscriber:latest"
+  source:
+    git:
+      ref: risk-publisher
+      uri: 'https://github.com/strangiato/datapipelines.git'
+    contextDir: /demos/xray-pipeline-lab/containers/risk-subscriber
+    type: Git
+  strategy:
+    type: Docker
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: 'python:3.8'
+        namespace: openshift
+      env: []
+  triggers:
+    - type: ImageChange
+      imageChange: {}
+    - type: ConfigChange
