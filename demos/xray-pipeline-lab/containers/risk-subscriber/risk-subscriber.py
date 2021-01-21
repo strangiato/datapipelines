@@ -1,16 +1,7 @@
-import io
 import logging
 import os
-import gc
 import sys
-from hashlib import blake2b
-from io import BytesIO
 
-import boto3
-import numpy as np
-import tensorflow as tf
-
-from cloudevents.http import from_http
 from kafka import KafkaConsumer
 from flask import Flask, request
 from flask_cors import CORS
