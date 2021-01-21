@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 
 COPY requirements.txt risk-assessment.py pneumonia_model.h5 FreeMono.ttf ./
 
+RUN python --version
+
 RUN pip install -r requirements.txt
 
 CMD ["python", "-u", "risk-assessment.py"]
