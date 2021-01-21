@@ -43,7 +43,10 @@ bucket_base_name = os.environ["bucket-base-name"]
 
 kafka_server = os.environ["kafka_server"]
 pneumonia_topic = os.environ["kafka_pneumonia_topic"]
-producer = KafkaProducer(bootstrap_servers=kafka_server)
+try:
+    producer = KafkaProducer(bootstrap_servers=kafka_server)
+except:
+    logging.exception("Failed to connect to kafka_server", kafka_server)
 
 # Helper database
 db_user = os.environ["database-user"]
