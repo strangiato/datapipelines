@@ -123,7 +123,7 @@ def process_event(data):
                     )
                 )
             update_images_processed(computed_image_key, model_version, result["label"])
-            logging.info(f"Image processed with label: {result["label"]})
+            logging.info("Image processed with label: {}".format(result["label"]))
 
             if "Pneumonia" in result["label"]:
                 producer.send(kafka_pneumonia_topic, f"Pneumonia detected in {img_key}")
