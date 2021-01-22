@@ -1,12 +1,12 @@
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
-  name: risk-subscriber
+  name: anon-subscriber
 spec:
   output:
     to:
       kind: "ImageStreamTag"
-      name: "risk-subscriber:latest"
+      name: "anon-subscriber:latest"
   source:
     git:
       ref: anon-subscriber
