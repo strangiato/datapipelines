@@ -1,0 +1,27 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: risk-subscriber
+spec:
+  output:
+    to:
+      kind: "ImageStreamTag"
+      name: "risk-subscriber:latest"
+  source:
+    git:
+      ref: anon-subscriber
+      uri: 'https://github.com/strangiato/datapipelines.git'
+    contextDir: /demos/xray-pipeline-lab/containers/anon-subscriber
+    type: Git
+  strategy:
+    type: Docker
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: 'python:3.6'
+        namespace: openshift
+      env: []
+  triggers:
+    - type: ImageChange
+      imageChange: {}
+    - type: ConfigChange
