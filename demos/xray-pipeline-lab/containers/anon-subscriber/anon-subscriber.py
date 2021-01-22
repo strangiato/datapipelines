@@ -1,8 +1,5 @@
 import logging
-import os
 import sys
-
-import boto3
 
 from cloudevents.http import from_http
 
